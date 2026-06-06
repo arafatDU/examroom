@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/mongodb";
 import ExamRoom from "@/models/ExamRoom";
 import JoinRequest from "@/models/JoinRequest";
+import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
@@ -31,6 +32,4 @@ export async function GET() {
   .sort({ createdAt: -1 });
 
   return NextResponse.json(rooms);
-}
-
 }
