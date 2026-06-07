@@ -166,47 +166,52 @@ export default function ExtractPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-          <Sparkles className="w-8 h-8 mr-3 text-indigo-600" />
-          Advanced AI Extractor
-        </h1>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg,#6366f1,#7c3aed)" }}>
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl md:text-2xl font-extrabold text-slate-900 leading-tight">Advanced AI Extractor</h1>
+            <p className="text-slate-400 text-xs mt-0.5">Use optical character recognition and AI to extract questions from images.</p>
+          </div>
+        </div>
         
-        <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-100 flex">
+        <div className="bg-white p-1 rounded-xl border border-slate-200 flex self-start sm:self-center">
           <button
             onClick={() => setActiveTab("single")}
             className={cn(
-              "px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2",
-              activeTab === "single" ? "bg-indigo-600 text-white shadow-md" : "text-gray-500 hover:text-gray-700"
+              "px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2",
+              activeTab === "single" ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" : "text-slate-500 hover:text-slate-800"
             )}
           >
-            <FileText className="w-4 h-4" /> Single Question
+            <FileText className="w-3.5 h-3.5" /> Single MCQ
           </button>
           <button
             onClick={() => setActiveTab("bulk")}
             className={cn(
-              "px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2",
-              activeTab === "bulk" ? "bg-indigo-600 text-white shadow-md" : "text-gray-500 hover:text-gray-700"
+              "px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2",
+              activeTab === "bulk" ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" : "text-slate-500 hover:text-slate-800"
             )}
           >
-            <Layers className="w-4 h-4" /> Bulk Questions
+            <Layers className="w-3.5 h-3.5" /> Bulk Sheet
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="mb-6 flex items-center text-red-600 text-sm bg-red-50 p-4 rounded-xl border border-red-100">
-          <AlertCircle className="w-5 h-5 mr-3" />
-          {error}
+        <div className="flex items-start text-red-600 text-sm bg-red-50 p-4 rounded-2xl border border-red-100">
+          <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0 mt-0.5 text-red-500" />
+          <p className="font-semibold">{error}</p>
         </div>
       )}
 
       {activeTab === "single" && (
         <div className="space-y-8">
           {!singleResult ? (
-            <div className="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 text-center">
-              <div className="relative border-2 border-dashed border-gray-200 rounded-2xl p-12 hover:border-indigo-400 transition-colors group">
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 text-center">
+              <div className="relative border-2 border-dashed border-slate-200 rounded-2xl p-12 hover:border-indigo-400 transition-colors group bg-slate-50/20">
                 <input
                   type="file"
                   accept="image/*"
@@ -219,30 +224,30 @@ export default function ExtractPage() {
                     }
                   }}
                 />
-                <Upload className="w-16 h-16 mx-auto text-gray-300 mb-6 group-hover:text-indigo-400 transition-colors" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Upload Single Question</h3>
-                <p className="text-gray-500">Take a clear photo of one question and its options</p>
+                <Upload className="w-14 h-14 mx-auto text-slate-300 mb-4 group-hover:text-indigo-500 transition-colors" />
+                <h3 className="text-base font-bold text-slate-800 mb-1">Upload Single Question Image</h3>
+                <p className="text-slate-400 text-xs max-w-sm mx-auto leading-normal">Drag and drop or browse to import an image containing one question with options.</p>
               </div>
               {loading && (
-                <div className="mt-8 flex items-center justify-center gap-3 text-indigo-600 font-bold">
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                  Extracting Question...
+                <div className="mt-8 flex items-center justify-center gap-2 text-indigo-600 font-bold text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  AI Question Parsing in progress...
                 </div>
               )}
             </div>
           ) : (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="space-y-6 animate-scale-in">
               <QuestionCard 
                 question={singleResult} 
                 onChange={(q) => setSingleResult(q)} 
               />
-              <div className="mt-8 flex justify-center">
+              <div className="flex justify-center pt-2">
                 <button
                   onClick={handleAddSingle}
                   disabled={loading}
-                  className="bg-indigo-600 text-white px-12 py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all flex items-center gap-2"
+                  className="btn-primary px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 text-sm"
                 >
-                  {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Plus className="w-6 h-6" />}
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                   Add to Question Bank
                 </button>
               </div>
@@ -254,8 +259,8 @@ export default function ExtractPage() {
       {activeTab === "bulk" && (
         <div className="space-y-8">
           {bulkResults.length === 0 ? (
-            <div className="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 text-center">
-              <div className="relative border-2 border-dashed border-gray-200 rounded-2xl p-12 hover:border-indigo-400 transition-colors group">
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 text-center">
+              <div className="relative border-2 border-dashed border-slate-200 rounded-2xl p-12 hover:border-indigo-400 transition-colors group bg-slate-50/20">
                 <input
                   type="file"
                   accept="image/*"
@@ -268,34 +273,34 @@ export default function ExtractPage() {
                     }
                   }}
                 />
-                <Upload className="w-16 h-16 mx-auto text-gray-300 mb-6 group-hover:text-indigo-400 transition-colors" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Upload Bulk Questions (Step 1)</h3>
-                <p className="text-gray-500">Upload an image containing up to 25 questions</p>
+                <Upload className="w-14 h-14 mx-auto text-slate-300 mb-4 group-hover:text-indigo-500 transition-colors" />
+                <h3 className="text-base font-bold text-slate-800 mb-1">Upload Bulk Exam Sheet (Step 1)</h3>
+                <p className="text-slate-400 text-xs max-w-sm mx-auto leading-normal">Drag and drop or browse to import a full page image containing up to 25 questions.</p>
               </div>
               {loading && (
-                <div className="mt-8 flex items-center justify-center gap-3 text-indigo-600 font-bold">
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                  Extracting Bulk Questions...
+                <div className="mt-8 flex items-center justify-center gap-2 text-indigo-600 font-bold text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  AI Bulk Extraction in progress...
                 </div>
               )}
             </div>
           ) : (
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="space-y-6 animate-scale-in">
               {/* Common Header */}
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-500 uppercase mb-2">Global Subject</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Global Subject</label>
                   <input 
-                    className="w-full border-gray-200 rounded-xl p-3 focus:ring-indigo-500"
+                    className="input-field"
                     placeholder="e.g. Physics"
                     value={bulkSubject}
                     onChange={(e) => setBulkSubject(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-gray-500 uppercase mb-2">Global Board</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Global Board</label>
                   <input 
-                    className="w-full border-gray-200 rounded-xl p-3 focus:ring-indigo-500"
+                    className="input-field"
                     placeholder="e.g. Dhaka Board 2023"
                     value={bulkBoard}
                     onChange={(e) => setBulkBoard(e.target.value)}
@@ -305,26 +310,26 @@ export default function ExtractPage() {
 
               {/* Step 2: Answers */}
               <div className={cn(
-                "p-8 rounded-2xl border-2 transition-all",
-                answersExtracted ? "bg-green-50 border-green-200" : "bg-indigo-50 border-indigo-200 border-dashed"
+                "p-6 rounded-2xl border-2 transition-all",
+                answersExtracted ? "bg-emerald-50/50 border-emerald-200" : "bg-indigo-50/40 border-indigo-200 border-dashed"
               )}>
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                  <div className="flex items-center gap-3">
                     <div className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl",
-                        answersExtracted ? "bg-green-600 text-white" : "bg-indigo-600 text-white"
+                        "w-10 h-10 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0",
+                        answersExtracted ? "bg-emerald-600 text-white" : "bg-indigo-600 text-white"
                     )}>
-                      {answersExtracted ? <CheckCircle2 className="w-6 h-6" /> : "2"}
+                      {answersExtracted ? <CheckCircle2 className="w-5 h-5" /> : "2"}
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {answersExtracted ? "Answers Extracted Successfully" : "Upload Answer Key (Step 2)"}
+                      <h3 className="text-base font-bold text-slate-800">
+                        {answersExtracted ? "Answers Extracted Successfully" : "Upload Answer Key Sheet (Step 2)"}
                       </h3>
-                      <p className="text-gray-600">Map answers to the {bulkResults.length} questions above</p>
+                      <p className="text-slate-500 text-xs mt-0.5">Map answer options automatically to the {bulkResults.length} questions below</p>
                     </div>
                   </div>
                   
-                  <div className="relative">
+                  <div className="relative self-stretch sm:self-auto">
                     <input
                       type="file"
                       accept="image/*"
@@ -338,22 +343,22 @@ export default function ExtractPage() {
                       }}
                     />
                     <button className={cn(
-                        "px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all",
-                        answersExtracted ? "bg-white text-green-600 border border-green-200" : "bg-indigo-600 text-white shadow-lg shadow-indigo-100"
+                        "w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all text-xs",
+                        answersExtracted ? "bg-white text-emerald-600 border border-emerald-200 hover:bg-emerald-50" : "bg-indigo-600 text-white shadow-md shadow-indigo-100"
                     )}>
-                      <Upload className="w-5 h-5" />
-                      {answersExtracted ? "Re-upload Answers" : "Upload Answer Image"}
+                      <Upload className="w-4 h-4" />
+                      {answersExtracted ? "Change Answers Sheet" : "Upload Answer Sheet"}
                     </button>
                   </div>
                 </div>
                 {loading && !answersExtracted && (
-                    <div className="mt-4 text-center text-indigo-600 font-bold animate-pulse">
-                        Extracting Answers...
-                    </div>
+                  <div className="mt-4 text-center text-indigo-600 font-bold text-xs animate-pulse">
+                    Extracting Answers...
+                  </div>
                 )}
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {bulkResults.map((q, idx) => (
                   <QuestionCard 
                     key={idx}
@@ -367,14 +372,14 @@ export default function ExtractPage() {
                 ))}
               </div>
 
-              <div className="sticky bottom-8 flex justify-center pb-8">
+              <div className="sticky bottom-6 flex justify-center pb-6 z-10">
                 <button
                   onClick={handleAddBulk}
                   disabled={loading}
-                  className="bg-indigo-600 text-white px-16 py-5 rounded-2xl font-black text-xl hover:bg-indigo-700 shadow-2xl shadow-indigo-200 transition-all flex items-center gap-3 transform hover:scale-105"
+                  className="btn-primary px-10 py-4 rounded-xl font-extrabold text-base flex items-center justify-center gap-2 transform active:scale-95 transition-all"
                 >
-                  {loading ? <Loader2 className="w-7 h-7 animate-spin" /> : <Save className="w-7 h-7" />}
-                  Finalize & Add {bulkResults.length} Questions
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                  Add {bulkResults.length} Questions to Bank
                 </button>
               </div>
             </div>
@@ -389,40 +394,40 @@ function QuestionCard({ question, onChange }: { question: Question; onChange: (q
   const options = question.options[0] || { a: "", b: "", c: "", d: "" };
 
   return (
-    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-      <div className="flex gap-6">
-        <div className="flex flex-col items-center gap-2">
-            <span className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center font-bold text-gray-400 border border-gray-100">
+    <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex gap-4">
+        <div className="flex flex-col items-center gap-2 flex-shrink-0">
+          <span className="w-8 h-8 rounded-full bg-slate-50 text-slate-500 flex items-center justify-center font-bold text-sm border border-slate-100 select-none">
             {question.serialNumber}
-            </span>
-            <div className="w-px h-full bg-gray-50" />
+          </span>
+          <div className="w-px flex-1 bg-slate-100" />
         </div>
         
-        <div className="flex-1 space-y-6">
+        <div className="flex-1 min-w-0 space-y-5">
           <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Question Title</label>
+            <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Question Title</label>
             <textarea
-              className="w-full text-xl font-medium border-none focus:ring-0 p-0 resize-none leading-relaxed text-gray-900"
+              className="w-full text-base font-semibold border-none focus:ring-0 p-0 resize-none leading-relaxed text-slate-800 focus:outline-none"
               rows={2}
               value={question.title}
               onChange={(e) => onChange({ ...question, title: e.target.value })}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {['a', 'b', 'c', 'd'].map((opt) => (
               <div key={opt} className={cn(
-                  "relative group flex items-center p-1 rounded-xl border-2 transition-all",
-                  question.answer === opt ? "border-green-500 bg-green-50" : "border-gray-50 bg-gray-50/50"
+                  "relative group flex items-center p-1 rounded-xl border transition-all",
+                  question.answer === opt ? "border-emerald-500 bg-emerald-50/20" : "border-slate-200 bg-slate-50/20"
               )}>
                 <span className={cn(
-                    "w-10 h-10 rounded-lg flex items-center justify-center font-bold uppercase mr-3 shadow-sm",
-                    question.answer === opt ? "bg-green-500 text-white" : "bg-white text-gray-400"
+                    "w-8 h-8 rounded-lg flex items-center justify-center font-bold uppercase mr-2.5 shadow-sm text-xs",
+                    question.answer === opt ? "bg-emerald-600 text-white" : "bg-white text-slate-400 border border-slate-100"
                 )}>
                   {opt}
                 </span>
                 <input
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-gray-700 font-medium"
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-slate-700 font-semibold text-xs py-1.5 focus:outline-none"
                   value={(options as any)[opt]}
                   onChange={(e) => {
                     const newOpts = [{ ...options, [opt]: e.target.value }];
@@ -432,21 +437,21 @@ function QuestionCard({ question, onChange }: { question: Question; onChange: (q
                 <button 
                   onClick={() => onChange({ ...question, answer: opt })}
                   className={cn(
-                    "absolute right-3 p-1 rounded-full transition-all",
-                    question.answer === opt ? "text-green-600" : "text-gray-300 hover:text-indigo-400 opacity-0 group-hover:opacity-100"
+                    "absolute right-2 p-1 rounded-full transition-all",
+                    question.answer === opt ? "text-emerald-600" : "text-slate-300 hover:text-indigo-500 opacity-0 group-hover:opacity-100"
                   )}
                 >
-                  <CheckCircle2 className="w-6 h-6" />
+                  <CheckCircle2 className="w-5 h-5" />
                 </button>
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-50">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-100">
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Correct Answer</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Correct Answer</label>
               <select 
-                className="w-full text-sm border-gray-100 rounded-lg bg-indigo-50/50 p-3 font-bold uppercase text-indigo-700 focus:ring-indigo-500"
+                className="w-full text-xs border border-slate-200 rounded-xl bg-indigo-50/40 px-3 py-2.5 font-bold uppercase text-indigo-700 focus:outline-none"
                 value={question.answer}
                 onChange={(e) => onChange({ ...question, answer: e.target.value })}
               >
@@ -456,40 +461,40 @@ function QuestionCard({ question, onChange }: { question: Question; onChange: (q
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Subject / Topic</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Subject / Topic</label>
               <input 
-                className="w-full text-sm border-gray-100 rounded-lg bg-gray-50/50 p-3"
+                className="w-full text-xs border border-slate-200 rounded-xl bg-slate-50/40 px-3 py-2.5 font-semibold text-slate-700"
                 value={question.subject || ""}
-                placeholder="Extracting..."
+                placeholder="Subject"
                 onChange={(e) => onChange({ ...question, subject: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Board</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Board</label>
               <input 
-                className="w-full text-sm border-gray-100 rounded-lg bg-gray-50/50 p-3"
+                className="w-full text-xs border border-slate-200 rounded-xl bg-slate-50/40 px-3 py-2.5 font-semibold text-slate-700"
                 value={question.board || ""}
                 placeholder="e.g. Dhaka Board"
                 onChange={(e) => onChange({ ...question, board: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Chapter</label>
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Chapter</label>
               <input 
-                className="w-full text-sm border-gray-100 rounded-lg bg-gray-50/50 p-3"
+                className="w-full text-xs border border-slate-200 rounded-xl bg-slate-50/40 px-3 py-2.5 font-semibold text-slate-700"
                 value={question.chapter || ""}
-                placeholder="e.g. Chapter 1"
+                placeholder="Chapter"
                 onChange={(e) => onChange({ ...question, chapter: e.target.value })}
               />
             </div>
-            <div className="md:col-span-2">
-                <label className="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-widest">Justification / Hint</label>
-                <input 
-                    className="w-full text-sm border-gray-100 rounded-lg bg-gray-50/50 p-3 italic"
-                    value={question.justification || ""}
-                    placeholder="Provide explanation..."
-                    onChange={(e) => onChange({ ...question, justification: e.target.value })}
-                />
+            <div className="col-span-2 md:col-span-4">
+              <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Justification / Explanation</label>
+              <input 
+                className="w-full text-xs border border-slate-200 rounded-xl bg-slate-50/40 px-3 py-2.5 font-medium text-slate-600 italic"
+                value={question.justification || ""}
+                placeholder="Provide details on why this answer is correct..."
+                onChange={(e) => onChange({ ...question, justification: e.target.value })}
+              />
             </div>
           </div>
         </div>

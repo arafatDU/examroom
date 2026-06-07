@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "ExamRoom - MCQ Platform",
-  description: "Comprehensive MCQ exam platform for HSC students in Bangladesh",
+  title: "ExamRoom — MCQ Exam Platform",
+  description: "The complete MCQ exam platform for HSC students. Take timed exams, get instant results, and prepare for your boards with AI-powered question extraction.",
+  keywords: ["exam", "MCQ", "HSC", "student", "Bangladesh", "online exam"],
 };
 
 export default function RootLayout({
@@ -26,7 +23,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle, Loader2, BookOpen } from "lucide-react";
 
 export default function ExamPage() {
   const { examId } = useParams();
@@ -17,14 +17,12 @@ export default function ExamPage() {
   const submitExam = useCallback(async (finalAnswers = answers) => {
     if (submitting) return;
     setSubmitting(true);
-
     try {
       const res = await fetch(`/api/student/exams/${examId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answers: finalAnswers }),
       });
-
       const data = await res.json();
       if (res.ok) {
         router.push(`/student/exams/${examId}/result`);
@@ -32,7 +30,7 @@ export default function ExamPage() {
         setError(data.message);
         setSubmitting(false);
       }
-    } catch (err) {
+    } catch {
       setError("Failed to submit exam. Please try again.");
       setSubmitting(false);
     }
@@ -41,50 +39,32 @@ export default function ExamPage() {
   useEffect(() => {
     fetch(`/api/student/exams/${examId}`)
       .then((res) => {
-        if (!res.ok) {
-          return res.json().then(data => {
-            throw new Error(data.message || "Could not load exam");
-          });
-        }
+        if (!res.ok) return res.json().then((d) => { throw new Error(d.message || "Could not load exam"); });
         return res.json();
       })
       .then((data) => {
         setExam(data);
-        
         let initialTimeLeft = 0;
         if (data.endTime) {
-          // Fixed end time
           const end = new Date(data.endTime).getTime();
-          const now = new Date().getTime();
-          initialTimeLeft = Math.max(0, Math.floor((end - now) / 1000));
+          initialTimeLeft = Math.max(0, Math.floor((end - Date.now()) / 1000));
         } else {
-          // Open-ended, use duration (this isn't perfect across refreshes yet, but fixes the crash)
           initialTimeLeft = data.durationMinutes * 60;
         }
-        
         setTimeLeft(initialTimeLeft);
         setLoading(false);
       })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+      .catch((err) => { setError(err.message); setLoading(false); });
   }, [examId]);
 
   useEffect(() => {
     if (timeLeft === null || timeLeft <= 0 || submitting) return;
-
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(timer);
-          if (!submitting) submitExam();
-          return 0;
-        }
+        if (prev === null || prev <= 1) { clearInterval(timer); if (!submitting) submitExam(); return 0; }
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, [timeLeft, submitting, submitExam]);
 
@@ -95,102 +75,136 @@ export default function ExamPage() {
   };
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <Loader2 className="w-10 h-10 animate-spin text-indigo-600 mb-4" />
-      <p className="text-gray-500 font-medium">Loading exam questions...</p>
+    <div className="flex flex-col items-center justify-center min-h-screen" style={{ background: "#f8f9ff" }}>
+      <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg,#6366f1,#7c3aed)" }}>
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
+      </div>
+      <p className="text-slate-600 font-semibold text-lg">Loading exam...</p>
+      <p className="text-slate-400 text-sm mt-1">Please wait while we prepare your questions.</p>
     </div>
   );
 
   if (error) return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-      <AlertTriangle className="w-16 h-16 text-red-500 mb-4" />
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">Error</h1>
-      <p className="text-gray-600 max-w-md">{error}</p>
-      <button 
-        onClick={() => router.push("/student")}
-        className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold"
-      >
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center" style={{ background: "#f8f9ff" }}>
+      <div className="w-20 h-20 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <AlertTriangle className="w-10 h-10 text-red-500" />
+      </div>
+      <h1 className="text-2xl font-bold text-slate-900 mb-2">Unable to Load Exam</h1>
+      <p className="text-slate-500 max-w-md mb-8">{error}</p>
+      <button onClick={() => router.push("/student")} className="btn-primary text-sm px-6 py-2.5">
         Return to Dashboard
       </button>
     </div>
   );
 
+  const questions = exam.questions || [];
+  const totalQ = questions.length;
+  const answeredCount = Object.keys(answers).length;
+  const isLowTime = (timeLeft || 0) < 60;
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <header className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
-        <div className="max-w-4xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 truncate max-w-xs md:max-w-md">
-              {exam.title}
-            </h1>
+    <div className="min-h-screen flex flex-col pb-12" style={{ background: "#f8f9ff" }}>
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg,#6366f1,#7c3aed)" }}>
+              <BookOpen className="w-4 h-4 text-white" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-sm font-bold text-slate-900 truncate max-w-[180px] sm:max-w-sm md:max-w-lg">{exam.title}</h1>
+              <p className="text-xs text-slate-400">{answeredCount} of {totalQ} answered</p>
+            </div>
           </div>
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono font-bold text-xl ${
-            (timeLeft || 0) < 60 ? "bg-red-100 text-red-600 animate-pulse" : "bg-indigo-50 text-indigo-600"
-          }`}>
-            <Clock className="w-5 h-5" />
-            {formatTime(timeLeft || 0)}
+
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Progress Bar */}
+            <div className="hidden sm:flex items-center gap-2">
+              <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-300" style={{ width: `${(answeredCount / totalQ) * 100}%`, background: "linear-gradient(90deg,#6366f1,#7c3aed)" }} />
+              </div>
+              <span className="text-xs text-slate-400 font-medium">{Math.round((answeredCount / totalQ) * 100)}%</span>
+            </div>
+
+            {/* Timer */}
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-mono font-bold text-base transition-all ${isLowTime ? "bg-red-100 text-red-600 animate-pulse" : "bg-indigo-50 text-indigo-700"}`}>
+              <Clock className="w-4 h-4" />
+              {formatTime(timeLeft || 0)}
+            </div>
           </div>
+        </div>
+        {/* Full-width progress bar */}
+        <div className="h-0.5 bg-slate-100">
+          <div className="h-full transition-all duration-300" style={{ width: `${(answeredCount / totalQ) * 100}%`, background: "linear-gradient(90deg,#6366f1,#7c3aed)" }} />
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 mt-8">
-        <div className="space-y-8">
-          {exam.questions.map((q: any, idx: number) => (
-            <div key={q._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex gap-4">
-                <span className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold flex-shrink-0">
-                  {idx + 1}
-                </span>
-                <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-900 mb-6">{q.title}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(q.options[0]).filter(([key]) => key !== "_id" && key !== "id").map(([key, value]) => (
-                      <button
-                        key={key}
-                        onClick={() => setAnswers(prev => ({ ...prev, [q._id]: key }))}
-                        className={`flex items-center p-4 rounded-lg border text-left transition-all ${
-                          answers[q._id] === key
-                            ? "border-indigo-600 bg-indigo-50 ring-2 ring-indigo-600 ring-opacity-10"
-                            : "border-gray-100 hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                      >
-                        <span className={`w-6 h-6 rounded-full border flex items-center justify-center mr-3 text-xs font-bold uppercase ${
-                          answers[q._id] === key ? "bg-indigo-600 border-indigo-600 text-white" : "border-gray-300 text-gray-400"
-                        }`}>
-                          {key}
-                        </span>
-                        <span className={answers[q._id] === key ? "text-indigo-900 font-medium" : "text-gray-700"}>
-                          {value as string}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+      {/* Main Container - Scrollable Question List */}
+      <main className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 py-8 space-y-6">
+        {questions.map((q: any, idx: number) => (
+          <div key={q._id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 transition-shadow hover:shadow-md">
+            {/* Question Header - Simple clean number badge */}
+            <div className="flex items-start gap-4 mb-6">
+              <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                {idx + 1}
               </div>
+              <h2 className="text-base md:text-lg font-semibold text-slate-900 leading-relaxed pt-1.5">
+                {q.title}
+              </h2>
             </div>
-          ))}
-        </div>
 
-        <div className="mt-12 flex justify-center">
+            {/* Options grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {Object.entries(q.options[0])
+                .filter(([key]) => key !== "_id" && key !== "id")
+                .map(([key, value]) => {
+                  const isSelected = answers[q._id] === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setAnswers((prev) => ({ ...prev, [q._id]: key }))}
+                      className={`flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all ${
+                        isSelected
+                          ? "border-indigo-500 shadow-sm"
+                          : "border-slate-100 hover:border-indigo-200 hover:bg-slate-50"
+                      }`}
+                      style={isSelected ? { background: "linear-gradient(135deg,#eef2ff,#f5f3ff)" } : {}}
+                    >
+                      <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold uppercase flex-shrink-0 transition-all ${
+                        isSelected ? "text-white" : "bg-slate-100 text-slate-500"
+                      }`}
+                        style={isSelected ? { background: "linear-gradient(135deg,#6366f1,#7c3aed)" } : {}}>
+                        {key}
+                      </span>
+                      <span className={`text-sm font-medium ${isSelected ? "text-indigo-900" : "text-slate-700"}`}>
+                        {value as string}
+                      </span>
+                    </button>
+                  );
+                })}
+            </div>
+          </div>
+        ))}
+
+        {/* Submit Section */}
+        <div className="pt-6 flex flex-col items-center justify-center gap-4">
+          <p className="text-sm text-slate-500 font-medium">
+            Answered {answeredCount} of {totalQ} questions
+          </p>
           <button
+            id="submit-exam-btn"
             onClick={() => {
-              if (confirm("Are you sure you want to submit your exam?")) {
+              if (confirm(`Are you sure you want to submit? You have answered ${answeredCount} out of ${totalQ} questions.`)) {
                 submitExam();
               }
             }}
             disabled={submitting}
-            className="bg-indigo-600 text-white px-12 py-4 rounded-xl font-bold text-lg hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center disabled:opacity-50"
+            className="btn-primary text-base px-10 py-3.5 rounded-xl w-full sm:w-auto flex items-center justify-center gap-2"
           >
             {submitting ? (
-              <>
-                <Loader2 className="w-6 h-6 mr-2 animate-spin" />
-                Submitting...
-              </>
+              <><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</>
             ) : (
-              <>
-                <CheckCircle className="w-6 h-6 mr-2" />
-                Final Submission
-              </>
+              <><CheckCircle className="w-5 h-5" /> Final Submission</>
             )}
           </button>
         </div>
